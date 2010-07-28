@@ -167,26 +167,6 @@ class ApacheConfig:
         except IOError:
             return ''
 
-        '''
-        body = ''
-        for index, line in enumerate(config_lines):
-            line = line.strip('\n')
-            line = line.replace('\t', '    ')
-
-            #if len(line) == 0 or re_comment.match(line.strip()):
-            if len(line) == 0 or (not PARSE_CONF_COMMENTS and line[0] == '#'):
-                continue
-
-            # Concatenate multiline directives delimited by backslash-newlines.
-            if line and line[-1] == '\\':
-                while line[-1] == '\\':
-                    line = ' '.join([line[:-1].strip(),
-                                     config_lines[index + 1].strip()])
-                    del config_lines[index + 1]
-
-            body += '%s\n' % line
-        '''
-
         return clean_body(config_lines, '#')
 
 
@@ -241,11 +221,7 @@ class ApacheConfig:
             sn = v.findall('ServerName')
             if sn:
                 dn = sn[0].values[0]
-
-                if dn in self.domains:
-                    self.domains[dn] += ports
-                else:
-                    self.domains[dn] = ports
+                self.domains.setdefault(dn, []).append(ports)
 
         return self.domains
 
