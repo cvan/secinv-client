@@ -18,20 +18,17 @@ class ApacheNode:
         self.values = values
         self.section = section
 
-
     def add_child(self, child):
         self.children.append(child)
         child.parent = self
         return child
 
-
     def find(self, path):
         """Return the first element which matches the path."""
         pathelements = path.strip('/').split('/')
-        if pathelements[0] == '':
+        if not pathelements[0]:
             return self
         return self._find(pathelements)
-
 
     def _find(self, pathelements):
         if pathelements: # There is still more to do ...
@@ -46,14 +43,12 @@ class ApacheNode:
         else: # no pathelements left, result is self
             return self
 
-
     def findall(self, path):
         """Return all elements which match the path."""
         pathelements = path.strip('/').split('/')
-        if pathelements[0] == '':
+        if not pathelements[0]:
             return [self]
         return self._findall(pathelements)
-
 
     def _findall(self, pathelements):
         if pathelements: # there is still more to do ...
@@ -66,7 +61,6 @@ class ApacheNode:
             return result
         else: # no pathelements left, result is self
             return [self]
-
 
     def print_r(self, indent=-1):
         """Recursively print node."""
@@ -81,7 +75,6 @@ class ApacheNode:
             if indent >= 0:
                 print '    ' * indent + self.name + ' ' + ' '.join(self.values)
 
-
     @classmethod
     def parse_file(cls, file):
         """Parse a file."""
@@ -93,12 +86,10 @@ class ApacheNode:
         except IOError:
             return False
 
-
     @classmethod
     def parse_string(cls, string):
         """Parse a string."""
         return cls._parse(string.splitlines())
-
 
     @classmethod
     def _parse(cls, itobj):
@@ -107,7 +98,7 @@ class ApacheNode:
         for line in itobj:
             line = line.strip()
 
-            if len(line) == 0 or cls.re_comment.match(line):
+            if not line or cls.re_comment.match(line):
                 continue
 
             # Concatenate multiline directives delimited by backslash-newlines.
@@ -167,28 +158,7 @@ class ApacheConfig:
         except IOError:
             return ''
 
-        '''
-        body = ''
-        for index, line in enumerate(config_lines):
-            line = line.strip('\n')
-            line = line.replace('\t', '    ')
-
-            #if len(line) == 0 or re_comment.match(line.strip()):
-            if len(line) == 0 or (not PARSE_CONF_COMMENTS and line[0] == '#'):
-                continue
-
-            # Concatenate multiline directives delimited by backslash-newlines.
-            if line and line[-1] == '\\':
-                while line[-1] == '\\':
-                    line = ' '.join([line[:-1].strip(),
-                                     config_lines[index + 1].strip()])
-                    del config_lines[index + 1]
-
-            body += '%s\n' % line
-        '''
-
         return clean_body(config_lines, '#')
-
 
     def print_children(self, children, indent=-1):
         """Recursively print children."""
@@ -198,7 +168,6 @@ class ApacheConfig:
                   child.name, ' '.join(child.values), \
                   child.section and '-----' or ''
             print_children(child.children, indent)
-
 
     def scan_children(self, children, indent=-1):
         """Recursively scan children and build directives dictionary."""
@@ -221,10 +190,8 @@ class ApacheConfig:
 
         return body_list
 
-
     def get_directives(self):
         return self.directives
-
 
     def get_domains(self):
         vh = self.root.findall('VirtualHost')
@@ -241,14 +208,9 @@ class ApacheConfig:
             sn = v.findall('ServerName')
             if sn:
                 dn = sn[0].values[0]
-
-                if dn in self.domains:
-                    self.domains[dn] += ports
-                else:
-                    self.domains[dn] = ports
+                self.domains.setdefault(dn, []).append(ports)
 
         return self.domains
-
 
     def get_includes(self):
         included_list = []
@@ -261,7 +223,8 @@ class ApacheConfig:
             if sr_node:
                 server_root = ''.join(sr_node.values)
                 # Strip quotation marks.
-                if server_root[0] in ('"', "'") and server_root[0] == server_root[-1]:
+                if server_root[0] in ('"', "'") and \
+                   server_root[0] == server_root[-1]:
                     server_root = server_root[1:-1]
             else:
                 server_root = APACHE_ROOT
