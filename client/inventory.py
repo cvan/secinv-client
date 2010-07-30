@@ -24,7 +24,7 @@ class Interfaces:
         lines = open_files.split('\n')
 
         for line in lines:
-            ls = line.split(' ')
+            ls = line.split()
 
             if ls[0].strip():
                 interface = ls[0].strip()
@@ -301,7 +301,7 @@ class IPTables:
                 # :<chain-name> <chain-policy> [<packet-counter>:<byte-counter>]
 
                 # Strip packet-counter and byte-counter.
-                ls = line.split(' ')
+                ls = line.split()
                 if len(ls) > 2 and ls[0].strip():
                     chain_name = ls[0].strip()[1:]
                     chain_policy = ls[1].strip()

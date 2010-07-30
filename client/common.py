@@ -80,7 +80,7 @@ def clean_body(body, comments_prefix=('#')):
     for index, line in enumerate(lines):
         line = line.strip()
 
-        if len(line) == 0 or (not PARSE_CONF_COMMENTS and line[0] in comments_prefix):
+        if not line or (not PARSE_CONF_COMMENTS and line[0] in comments_prefix):
             continue
 
         # Concatenate multiline instructions delimited by backslash-newlines.
