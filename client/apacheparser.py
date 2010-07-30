@@ -208,10 +208,7 @@ class ApacheConfig:
             sn = v.findall('ServerName')
             if sn:
                 dn = sn[0].values[0]
-                if dn in self.domains:
-                    self.domains[dn] += ports
-                else:
-                    self.domains[dn] = ports
+                self.domains.setdefault(dn, []).append(ports)
 
         return self.domains
 
