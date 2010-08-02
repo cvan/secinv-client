@@ -24,6 +24,9 @@ class Interfaces:
         lines = open_files.split('\n')
 
         for line in lines:
+            if not line:
+                continue
+
             ls = line.split()
 
             if ls[0].strip():
@@ -129,6 +132,9 @@ class System:
         lines = mount_info.split('\n')
 
         for line in lines:
+            if not line:
+                continue
+
             p = re.compile(r'.+ type ([^\s].+) ')
             m = p.match(line)
             if m and m.group(1) == 'nfs':
@@ -163,6 +169,9 @@ class Services:
         lines = open_files.split('\n')
 
         for line in lines:
+            if not line:
+                continue
+
             chunks = re.split('\s*', line)
 
             if not '(LISTEN)' in chunks:
