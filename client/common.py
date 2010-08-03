@@ -70,7 +70,7 @@ PARSE_CONF_COMMENTS = client_config.get('miscellaneous',
     'parse_conf_comments').lower() == 'true' and True or False
 
 
-def clean_body(body, comments_prefix=('#')):
+def clean_body(body, comments_prefix='#'):
     """
     Clean up whitespace, multiline instructions, and comments (if applicable).
     """
@@ -81,7 +81,7 @@ def clean_body(body, comments_prefix=('#')):
         lines = body
     else:
         lines = re.split('\n', body)
-    
+
     body = ''
 
     for index, line in enumerate(lines):

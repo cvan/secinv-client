@@ -22,6 +22,7 @@ class Interfaces:
         open_files = subprocess.Popen(IFCONFIG, shell=True,
                                       stdout=subprocess.PIPE).communicate()[0]
         lines = open_files.split('\n')
+        interface = ''
 
         for line in lines:
             if not line:
@@ -40,8 +41,15 @@ class Interfaces:
             # Get IP address and netmask.
             if 'inet' in ls:
                 inet = ls[ls.index('inet') + 1]
-                i_dict[interface]['i_ip'] = inet.split(':')[1]
-                i_dict[interface]['i_mask'] = ls[-1].split(':')[1]
+                if ':' in inet:
+                    i_dict[interface]['i_ip'] = inet.split(':')[1]
+                else:
+                    i_dict[interface]['i_ip'] = inet
+
+                if ':' in ls[-1]:
+                    i_dict[interface]['i_mask'] = ls[-1].split(':')[1]
+                else:
+                    i_dict[interface]['i_mask'] = ls[-1]
 
         return i_dict
 
@@ -115,7 +123,6 @@ class System:
         except IOError:
             #raise Exception("Notice: Cannot open ip_forward file '%s'." % filename)
             print "Notice: Cannot open ip_forward file '%s'" % filename
-            pass
 
         return ip_fwd
 
