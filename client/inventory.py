@@ -17,7 +17,7 @@ class Interfaces:
         Return dictionary of IP address, MAC address, and netmask for each
         interface.
         """
-        assets_dict = {}
+        i_dict = {}
 
         open_files = subprocess.Popen(IFCONFIG, shell=True,
                                       stdout=subprocess.PIPE).communicate()[0]
@@ -31,19 +31,19 @@ class Interfaces:
 
             if ls[0].strip():
                 interface = ls[0].strip()
-                assets_dict[interface] = {'i_ip': '', 'i_mac': '', 'i_mask': ''}
+                i_dict[interface] = {'i_ip': '', 'i_mac': '', 'i_mask': ''}
 
             # Get MAC address.
             if 'HWaddr' in ls:
-                assets_dict[interface]['i_mac'] = ls[ls.index('HWaddr') + 1].lower()
+                i_dict[interface]['i_mac'] = ls[ls.index('HWaddr') + 1].lower()
 
             # Get IP address and netmask.
             if 'inet' in ls:
                 inet = ls[ls.index('inet') + 1]
-                assets_dict[interface]['i_ip'] = inet.split(':')[1]
-                assets_dict[interface]['i_mask'] = ls[-1].split(':')[1]
+                i_dict[interface]['i_ip'] = inet.split(':')[1]
+                i_dict[interface]['i_mask'] = ls[-1].split(':')[1]
 
-        return assets_dict
+        return i_dict
 
 
 class System:
@@ -146,13 +146,13 @@ class System:
     @classmethod
     def get_system_dict(cls):
         """Build and return dictionary of assets fields."""
-        assets_dict = {'sys_ip': cls._get_ip(),
+        i_dict = {'sys_ip': cls._get_ip(),
                        'hostname': cls._get_hostname(),
                        'kernel_rel': cls._get_kernel_release(),
                        'rh_rel': cls._get_redhat_version(),
                        'nfs': cls._nfs_status(),
                        'ip_fwd': cls._ip_fwd_status()}
-        return assets_dict
+        return i_dict
 
 
 class Services:

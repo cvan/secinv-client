@@ -233,7 +233,6 @@ class ApacheConfig:
             i = ''.join(i.values)
 
             i_fn = os.path.join(server_root, i)
-            #print '-', i_fn
 
             # Shell-style filename expansion (e.g., `conf.d/*.conf`).
             included_list += glob.glob(i_fn)

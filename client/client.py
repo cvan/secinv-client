@@ -5,13 +5,12 @@ import sys
 from common import *
 from inventory import *
 
-proxy = xmlrpclib.ServerProxy(uri="%s:%s" % (HOST, PORT),
-                              verbose=False)
+proxy = xmlrpclib.ServerProxy(uri="%s:%s" % (HOST, PORT), verbose=False)
 
 multicall = xmlrpclib.MultiCall(proxy)
 
 # Send authentication key.
-multicall.authenticate(AUTH_KEY)
+multicall.authenticate(AUTH_TOKEN)
 
 
 ip = Interfaces()

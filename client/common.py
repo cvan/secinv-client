@@ -14,6 +14,7 @@ warnings.filterwarnings('ignore')
 
 
 # Path to client configuration file.
+AUTH_CONFIG_FN = path('auth.conf')
 CLIENT_CONFIG_FN = path('settings.conf')
 
 client_config = ConfigParser()
@@ -24,10 +25,17 @@ except IOError:
     sys.exit("Error: Cannot open inventory configuration file '%s'"
              % CLIENT_CONFIG_FN)
 
+try:
+    auth_config.readfp(file(AUTH_CONFIG_FN))
+except IOError:
+    sys.exit("Error: Cannot open inventory authorization token file '%s'"
+             % AUTH_CONFIG_FN)
+
+
 ## Server.
 HOST = client_config.get('server', 'host')
 PORT = client_config.get('server', 'port')
-AUTH_KEY = client_config.get('server', 'auth_key')
+AUTH_TOKEN = auth_config.get('auth_token', 'auth_token')
 DEBUG = client_config.get('server', 'debug').lower() == 'true' and True or False
 
 
