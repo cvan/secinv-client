@@ -17,7 +17,7 @@ warnings.filterwarnings('ignore')
 AUTH_CONFIG_FN = path('auth.conf')
 CLIENT_CONFIG_FN = path('settings.conf')
 
-client_config = ConfigParser()
+client_config = auth_config = ConfigParser()
 
 try:
     client_config.readfp(file(CLIENT_CONFIG_FN))
