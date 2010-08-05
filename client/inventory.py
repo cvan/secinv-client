@@ -154,11 +154,11 @@ class System:
     def get_system_dict(cls):
         """Build and return dictionary of assets fields."""
         i_dict = {'sys_ip': cls._get_ip(),
-                       'hostname': cls._get_hostname(),
-                       'kernel_rel': cls._get_kernel_release(),
-                       'rh_rel': cls._get_redhat_version(),
-                       'nfs': cls._nfs_status(),
-                       'ip_fwd': cls._ip_fwd_status()}
+                  'hostname': cls._get_hostname(),
+                  'kernel_rel': cls._get_kernel_release(),
+                  'rh_rel': cls._get_redhat_version(),
+                  'nfs': cls._nfs_status(),
+                  'ip_fwd': cls._ip_fwd_status()}
         return i_dict
 
 
@@ -186,8 +186,15 @@ class Services:
 
             proc_name = chunks[0]
             full_name = chunks[-2]
+            port = full_name.split(':')[1]
 
-            ports_dict[proc_name] = full_name.split(':')[1]
+            ports_dict.setdefault(proc_name, [])
+
+            if proc_name in ports_dict and port not in ports_dict[proc_name]:
+                ports_dict[proc_name].append(port)
+
+        for k, v in ports_dict.iteritems():
+            ports_dict[k] = ', '.join(v)
 
         return ports_dict
 
