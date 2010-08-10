@@ -1,4 +1,5 @@
-from ConfigParser import ConfigParser
+from ConfigParser import RawConfigParser, ParsingError
+import cStringIO
 import os
 import re
 import subprocess
@@ -123,6 +124,7 @@ class System:
         except IOError:
             #raise Exception("Notice: Cannot open ip_forward file '%s'." % filename)
             print "Notice: Cannot open ip_forward file '%s'" % filename
+            pass
 
         return ip_fwd
 
@@ -154,11 +156,11 @@ class System:
     def get_system_dict(cls):
         """Build and return dictionary of assets fields."""
         i_dict = {'sys_ip': cls._get_ip(),
-                  'hostname': cls._get_hostname(),
-                  'kernel_rel': cls._get_kernel_release(),
-                  'rh_rel': cls._get_redhat_version(),
-                  'nfs': cls._nfs_status(),
-                  'ip_fwd': cls._ip_fwd_status()}
+                       'hostname': cls._get_hostname(),
+                       'kernel_rel': cls._get_kernel_release(),
+                       'rh_rel': cls._get_redhat_version(),
+                       'nfs': cls._nfs_status(),
+                       'ip_fwd': cls._ip_fwd_status()}
         return i_dict
 
 
@@ -186,15 +188,8 @@ class Services:
 
             proc_name = chunks[0]
             full_name = chunks[-2]
-            port = full_name.split(':')[1]
 
-            ports_dict.setdefault(proc_name, [])
-
-            if proc_name in ports_dict and port not in ports_dict[proc_name]:
-                ports_dict[proc_name].append(port)
-
-        for k, v in ports_dict.iteritems():
-            ports_dict[k] = ', '.join(v)
+            ports_dict[proc_name] = full_name.split(':')[1]
 
         return ports_dict
 
@@ -398,71 +393,105 @@ class ApacheConfigList:
 class PHPConfig:
     def get_items(self):
         parameters = {}
-        php_config = ConfigParser()
+        php_config = RawConfigParser()
+
+        sections = []
 
         try:
-            php_config.readfp(file(path(PHP_INI)))
+            contents = file(path(MY_CNF))
+            lines = contents.readlines()
+
+            # Workaround for `allow_no_value` (which is available in only Python 2.7+).
+            body = ''
+            for line in lines:
+                stripped_line = line.strip()
+                if not stripped_line or stripped_line[0] in ('#', ';'):
+                    pass
+
+                elif line[0] != '[' and line[-1] != ']' and \
+                   '=' not in line:
+                    line = '%s=\n' % line.rstrip('\n')
+
+                body += line
+
+            php_config.readfp(cStringIO.StringIO(body))
+
             sections = php_config.sections()
         except IOError:
-            #sys.exit("Notice: Cannot open PHP configuration file '%s'" % PHP_INI)
-            print "Notice: Cannot open PHP configuration file '%s'" % PHP_INI
-            sections = []
+            #sys.exit("Notice: Cannot open PHP configuration file '%s'" % MY_CNF)
+            print "Notice: Cannot open PHP configuration file '%s'" % MY_CNF
+        except ParsingError, error:
+            print "Notice: Cannot parse PHP configuration file '%s'\n%s" % (PHP_INI, error)
 
         for section in sections:
             items = php_config.items(section)
 
-            #parameters[section] = {}
             for item in items:
-                #parameters[section][item[0]] = [item[1]]
                 if item[0] in parameters:
                     parameters[item[0]] += [item[1]]
                 else:
                     parameters[item[0]] = [item[1]]
-                #parameters.setdefault(item[0], []).append(item[1])
 
         return parameters
 
     def parse(self):
         try:
-            file_obj = open(path(PHP_INI), 'r')
+            file_obj = open(path(MY_CNF), 'r')
             lines = file_obj.readlines()
             file_obj.close()
-            
-            body = clean_body(lines, ';')
-            items = self.get_items()
-            php_dict = {'body': body, 'items': items, 'filename': PHP_INI}
-        except IOError:
-            #raise Exception("Notice: Cannot open PHP configuration file '%s'" % PHP_INI)'
-            print "Notice: Cannot open PHP configuration file '%s'" % PHP_INI
-            php_dict = {'body': '', 'items': [], 'filename': ''}
 
-        return php_dict
+            body = clean_body(lines, '#')
+            items = self.get_items()
+            my_dict = {'body': body, 'items': items, 'filename': MY_CNF}
+        except IOError:
+            #raise Exception("Notice: Cannot open PHP configuration file '%s'" % MY_CNF)'
+            print "Notice: Cannot open PHP configuration file '%s'" % MY_CNF
+            my_dict = {'body': '', 'items': [], 'filename': ''}
+
+        return my_dict
 
 
 class MySQLConfig:
     def get_items(self):
         parameters = {}
-        mysql_config = ConfigParser()
+        mysql_config = RawConfigParser()
+
+        sections = []
 
         try:
-            mysql_config.readfp(file(path(MY_CNF)))
+            contents = file(path(MY_CNF))
+            lines = contents.readlines()
+
+            # Workaround for `allow_no_value` (which is available in only Python 2.7+).
+            body = ''
+            for line in lines:
+                stripped_line = line.strip()
+                if not stripped_line or stripped_line[0] in ('#', ';'):
+                    pass
+
+                elif line[0] != '[' and line[-1] != ']' and \
+                   '=' not in line:
+                    line = '%s=\n' % line.rstrip('\n')
+
+                body += line
+
+            mysql_config.readfp(cStringIO.StringIO(body))
+
             sections = mysql_config.sections()
         except IOError:
             #sys.exit("Notice: Cannot open MySQL configuration file '%s'" % MY_CNF)
             print "Notice: Cannot open MySQL configuration file '%s'" % MY_CNF
-            sections = []
+        except ParsingError, error:
+            print "Notice: Cannot parse PHP configuration file '%s'\n%s" % (PHP_INI, error)
 
         for section in sections:
             items = mysql_config.items(section)
 
-            #parameters[section] = {}
             for item in items:
-                #parameters[section][item[0]] = [item[1]]
                 if item[0] in parameters:
                     parameters[item[0]] += [item[1]]
                 else:
                     parameters[item[0]] = [item[1]]
-                #parameters.setdefault(item[0], []).append(item[1])
 
         return parameters
 
