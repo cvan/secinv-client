@@ -189,7 +189,15 @@ class Services:
             proc_name = chunks[0]
             full_name = chunks[-2]
 
-            ports_dict[proc_name] = full_name.split(':')[1]
+            port = full_name.split(':')[1]
+
+            ports_dict.setdefault(proc_name, [])
+
+            if port not in ports_dict[proc_name]:
+                ports_dict[proc_name].append(port)
+
+        for k, v in ports_dict.iteritems():
+            ports_dict[k] = ', '.join(v)
 
         return ports_dict
 
