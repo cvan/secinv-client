@@ -29,7 +29,7 @@ class Interfaces:
             if not line:
                 continue
 
-            ls = line.split()
+            ls = line.split(' ')
 
             if ls[0].strip():
                 interface = ls[0].strip()
